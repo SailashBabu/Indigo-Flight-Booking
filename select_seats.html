@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Seats for {{ flight.flight_number }}</title>
+    <style>
+        .seat {
+            width: 40px;
+            height: 40px;
+            margin: 5px;
+            display: inline-block;
+            text-align: center;
+            line-height: 40px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .available { background-color: #4CAF50; color: white; }
+        .booked { background-color: #D32F2F; color: white; cursor: not-allowed; }
+        .selected { background-color: #FFC107; color: black; }
+
+        .seat-row { margin-bottom: 10px; }
+        .error-message { color: red; margin-top: 10px; }
+    </style>
+    <script>
+        let passengerCount = JSON.parse('{{ passenger_count|safe }}');
+        // Limit the seat selection
+        let selectedCount = 0;
+
+        function toggleSeatSelection(seat) {
+            if (seat.classList.contains('booked')) return;
+
+            if (seat.classList.contains('selected')) {
+                // Deselect a seat
+                seat.classList.remove('selected');
+                selectedCount--;
+            } else {
+                if (selectedCount < passengerCount) {
+                    // Select the seat if the limit is not reached
+                    seat.classList.add('selected');
+                    selectedCount++;
+                } else {
+                    // Show error message if the limit is exceeded
+                    document.getElementById('errorMessage').innerText = 
+                        `You can only select ${passengerCount} seats.`;
+                }
+            }
+        }
+
+        function collectSelectedSeats() {
+            const selectedSeats = [];
+            document.querySelectorAll('.selected').forEach(seat => {
+                selectedSeats.push(seat.dataset.seat);
+            });
+            document.getElementById('selectedSeats').value = selectedSeats.join(',');
+        }
+    </script>
+</head>
+<body>
+    <h1>Select Seats for Flight: {{ flight.flight_number }}</h1>
+    <form action="{% url 'book_flight' flight.flight_number %}" method="POST" onsubmit="collectSelectedSeats()">
+        {% csrf_token %}
+        <div id="seat-layout">
+            {% for row, seats in seat_map.items %}
+                <div class="seat-row">
+                    {% for seat in seats %}
+                        <div class="seat 
+                            {% if seat.is_booked %} booked {% else %} available {% endif %}"
+                             data-seat="{{ seat.row }}{{ seat.column }}"
+                             onclick="toggleSeatSelection(this)">
+                            {{ seat.row }}{{ seat.column }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+        <input type="hidden" name="selected_seats" id="selectedSeats">
+        <div class="error-message" id="errorMessage"></div>
+        <button type="submit">Book Selected Seats</button>
+    </form>
+</body>
+</html>

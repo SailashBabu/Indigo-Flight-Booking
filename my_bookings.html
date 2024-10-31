@@ -1,0 +1,96 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IndiGo Flight Booking</title>
+</head>
+<body>
+
+    <!-- Header Section -->
+    <header>
+        <div class="navbar">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/IndiGo_logo.svg/1200px-IndiGo_logo.svg.png" alt="IndiGo Logo" class="logo">
+            <nav>
+                <ul>
+                    <li><a href="{% url 'my_bookings' %}">Bookings</a></li>
+                    <li><a href="{% url 'search_flights' %}">Home</a></li>
+                    <li><a href="#">Check-in</a></li>
+                    <li><a href="#">6E Rewards</a></li>
+                    <li><a href="#">IndiGo BluChip</a></li>
+                </ul>
+            </nav>
+            <button class="login-btn"><a href="{% url 'logout' %}">Logout</a></button>
+        </div>
+       
+    </header>
+    <h1>My Bookings</h1>
+    <table border="1">
+        <tr>
+            <th>Flight Number</th>
+            <th>Selected Seats</th>
+            <th>Booking Time</th>
+        </tr>
+        {% for booking in bookings %}
+        <tr>
+            <td>{{ booking.flight_number }}</td>
+            <td>{{ booking.selected_seats|join:", " }}</td>
+            <td>{{ booking.booking_time|date:"Y-m-d H:i:s" }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    {% if bookings.count == 0 %}
+    <p>You have no bookings.</p>
+    {% endif %}
+</body>
+</html>
+<style>
+
+body {
+    background-color: #f4f8fc;
+    color: #333;
+}
+
+header {
+    background-color: #fef7d8;
+    padding: 20px 40px;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    width: 120px;
+}
+
+nav ul {
+    display: flex;
+    list-style-type: none;
+    gap: 30px;
+}
+
+nav ul li {
+    color: #333;
+    font-size: 16px;
+}
+
+nav ul li a {
+    text-decoration: none;
+    color: #333;
+}
+
+.login-btn {
+    background-color: #0078d4;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+}
+</style>
